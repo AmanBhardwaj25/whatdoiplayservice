@@ -189,7 +189,7 @@ app.get('/auth/steam/return',
 
 
 try {
-    app.listen(5005, '0.0.0.0', () => {
+    app.listen(PORT, '0.0.0.0', () => {
         console.log(`Express server listening on port ${PORT}`)
     })
 } catch (error) {
