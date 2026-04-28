@@ -15,7 +15,7 @@ jobs:
     name: Deploy
     runs-on:
       - self-hosted
-      - proxmox
+      - whatdoiplay
       - prod
     env:
       APP_DIR: ${{ vars.PROD_APP_DIR }}
