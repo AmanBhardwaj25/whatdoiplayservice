@@ -13,6 +13,7 @@ concurrency:
 jobs:
   deploy:
     name: Deploy
+    environment: prod
     runs-on:
       - self-hosted
       - whatdoiplay
