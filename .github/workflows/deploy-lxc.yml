@@ -58,13 +58,21 @@ jobs:
         run: |
           set -euo pipefail
           cd "$APP_DIR"
-          npm ci --omit=dev
+          if [ -f package-lock.json ]; then
+            npm ci --omit=dev
+          else
+            npm install --omit=dev
+          fi
 
       - name: Install and build frontend
         run: |
           set -euo pipefail
           cd "$APP_DIR/frontend"
-          npm ci
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
           npm run build
 
       - name: Restart backend service
