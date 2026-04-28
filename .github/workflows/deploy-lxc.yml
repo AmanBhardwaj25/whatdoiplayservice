@@ -42,6 +42,11 @@ jobs:
             exit 1
           fi
 
+      - name: Mark deploy directory as safe for git
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "$APP_DIR"
+
       - name: Deploy latest main
         run: |
           set -euo pipefail
