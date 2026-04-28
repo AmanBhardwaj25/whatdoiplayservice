@@ -27,6 +27,7 @@ jobs:
         env:
           STEAM_TOKEN: ${{ vars.STEAM_TOKEN || secrets.STEAM_TOKEN }}
           STEAM_SECRET: ${{ vars.STEAM_SECRET || secrets.STEAM_SECRET }}
+          FRONTEND_ALLOWED_HOSTS: ${{ vars.FRONTEND_ALLOWED_HOSTS || secrets.FRONTEND_ALLOWED_HOSTS }}
         run: |
           set -euo pipefail
           if [ -z "${APP_DIR:-}" ]; then
@@ -47,6 +48,10 @@ jobs:
           fi
           if [ -z "${STEAM_SECRET:-}" ]; then
             echo "Missing STEAM_SECRET (vars or secrets)"
+            exit 1
+          fi
+          if [ -z "${FRONTEND_ALLOWED_HOSTS:-}" ]; then
+            echo "Missing FRONTEND_ALLOWED_HOSTS (vars or secrets)"
             exit 1
           fi
 
@@ -107,6 +112,30 @@ jobs:
           cd "$APP_DIR"
           git fetch origin main
           git reset --hard origin/main
+
+      - name: Apply frontend allowed hosts from environment values
+        env:
+          FRONTEND_ALLOWED_HOSTS: ${{ vars.FRONTEND_ALLOWED_HOSTS || secrets.FRONTEND_ALLOWED_HOSTS }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'EOF'
+          import fs from "node:fs"
+
+          const configPath = `${process.env.APP_DIR}/frontend/angular.json`
+          const hosts = (process.env.FRONTEND_ALLOWED_HOSTS || "")
+            .split(",")
+            .map((value) => value.trim())
+            .filter(Boolean)
+
+          if (!hosts.length) {
+            throw new Error("FRONTEND_ALLOWED_HOSTS is empty")
+          }
+
+          const angularConfig = JSON.parse(fs.readFileSync(configPath, "utf8"))
+          angularConfig.projects.frontend.architect.serve.options ||= {}
+          angularConfig.projects.frontend.architect.serve.options.allowedHosts = hosts
+          fs.writeFileSync(configPath, `${JSON.stringify(angularConfig, null, 2)}\n`)
+          EOF
 
       - name: Install backend dependencies
         run: |
