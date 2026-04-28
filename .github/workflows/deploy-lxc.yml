@@ -19,18 +19,18 @@ jobs:
       - whatdoiplay
       - prod
     env:
-      APP_DIR: ${{ vars.PROD_APP_DIR }}
-      SERVICE_NAME: ${{ vars.PROD_SERVICE_NAME }}
+      APP_DIR: ${{ secrets.PROD_APP_DIR }}
+      SERVICE_NAME: ${{ secrets.PROD_SERVICE_NAME }}
     steps:
       - name: Validate required variables
         run: |
           set -euo pipefail
           if [ -z "${APP_DIR:-}" ]; then
-            echo "Missing repo variable PROD_APP_DIR"
+            echo "Missing environment secret PROD_APP_DIR"
             exit 1
           fi
           if [ -z "${SERVICE_NAME:-}" ]; then
-            echo "Missing repo variable PROD_SERVICE_NAME"
+            echo "Missing environment secret PROD_SERVICE_NAME"
             exit 1
           fi
 
