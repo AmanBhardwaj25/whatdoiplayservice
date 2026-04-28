@@ -1,0 +1,58 @@
+.mode-group {
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: 1.25rem;
+}
+
+h2 {
+  margin: 0 0 1rem;
+  color: #f8fafc;
+  font-size: 1.35rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.mode-card {
+  border-radius: 14px;
+  padding: 1.1rem;
+  text-align: left;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mode-card.active {
+  border: 1px solid #60a5fa;
+  background: rgba(30, 58, 138, 0.38);
+  cursor: pointer;
+}
+
+.mode-card.active:hover {
+  background: rgba(30, 58, 138, 0.52);
+}
+
+.mode-card.disabled {
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(100, 116, 139, 0.22);
+  opacity: 0.7;
+}
+
+.mode-title {
+  color: #e2e8f0;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.mode-desc {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 760px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

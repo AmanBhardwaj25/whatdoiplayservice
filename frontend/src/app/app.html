@@ -1,0 +1,32 @@
+<main class="page">
+  <button
+    type="button"
+    class="page-banner-button"
+    (click)="goToLandingPage()"
+    aria-label="Go to landing page"
+  >
+    <img class="page-banner" src="banner.png" alt="What Do I Play banner" />
+  </button>
+
+  @if (isLoading) {
+    <section class="center-card">
+      <p>Checking session...</p>
+    </section>
+  } @else if (!isAuthenticated) {
+    <section class="center-card">
+      <img class="brand-logo" src="logo.png" alt="What Do I Play logo" />
+      <h1>What Do I Play</h1>
+      <button type="button" (click)="loginWithSteamPopup()">Login With Steam</button>
+    </section>
+  } @else {
+    <section class="landing-page">
+      <app-logout [backendBaseUrl]="backendBaseUrl" (loggedOut)="onLoggedOut()"></app-logout>
+
+      @if (activeMode === 'none') {
+        <app-start-mode-cards (startClassic)="startClassicMode()"></app-start-mode-cards>
+      } @else if (activeMode === 'classic') {
+        <app-classic-showdown [backendBaseUrl]="backendBaseUrl"></app-classic-showdown>
+      }
+    </section>
+  }
+</main>

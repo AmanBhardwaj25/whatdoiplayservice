@@ -1,0 +1,53 @@
+<section class="showdown-wrap">
+  @if (isLoading) {
+    <p class="state">Loading your top 30 games...</p>
+  } @else if (errorMessage) {
+    <div class="state error">
+      <p>{{ errorMessage }}</p>
+      <button type="button" (click)="initializeClassicMode()">Try Again</button>
+    </div>
+  } @else if (!session) {
+    <p class="state">No session data available.</p>
+  } @else if (session.champion) {
+    <div class="state winner">
+      <h2>Classic Winner</h2>
+      <p>{{ session.champion.name }}</p>
+      <button type="button" (click)="initializeClassicMode()">Restart Classic</button>
+    </div>
+  } @else if (!hasPair()) {
+    <div class="state">
+      <p>No games left in the bracket.</p>
+      <button type="button" (click)="initializeClassicMode()">Restart Classic</button>
+    </div>
+  } @else {
+    <p class="meta">Remaining games: {{ session.stack.length }}</p>
+
+    <div class="cards">
+      <article class="game-card">
+        <button type="button" class="artwork-select" (click)="pickWinner(session.currentPair![0])">
+          <img
+            class="game-artwork"
+            [src]="getArtworkSrc(session.currentPair![0])"
+            [alt]="session.currentPair![0].name + ' artwork'"
+            (error)="onArtworkError(session.currentPair![0])"
+          />
+        </button>
+        <p class="hours">{{ getHoursPlayed(session.currentPair![0]) }}</p>
+        <button type="button" class="not-game" (click)="removePairAsNotGame()">This Is Not A Game</button>
+      </article>
+
+      <article class="game-card">
+        <button type="button" class="artwork-select" (click)="pickWinner(session.currentPair![1])">
+          <img
+            class="game-artwork"
+            [src]="getArtworkSrc(session.currentPair![1])"
+            [alt]="session.currentPair![1].name + ' artwork'"
+            (error)="onArtworkError(session.currentPair![1])"
+          />
+        </button>
+        <p class="hours">{{ getHoursPlayed(session.currentPair![1]) }}</p>
+        <button type="button" class="not-game" (click)="removePairAsNotGame()">This Is Not A Game</button>
+      </article>
+    </div>
+  }
+</section>

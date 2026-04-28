@@ -1,0 +1,54 @@
+<main class="container">
+  <h1>Steam API Test Client</h1>
+  <p class="hint">
+    This Angular page is for testing auth + library endpoints with browser cookies.
+  </p>
+
+  <section class="card">
+    <h2>Backend</h2>
+    <div class="row">
+      <label for="backendBaseUrl">Base URL</label>
+      <input id="backendBaseUrl" type="text" [(ngModel)]="backendBaseUrl" />
+      <button type="button" (click)="saveBackendBaseUrl()">Save</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Auth</h2>
+    <div class="row">
+      <button type="button" (click)="loginWithSteam()">Login With Steam</button>
+      <button type="button" (click)="logout()">Logout</button>
+      <button type="button" (click)="callWhoAmI()">GET /</button>
+      <button type="button" (click)="callAccount()">GET /account</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Owned Games</h2>
+    <div class="row">
+      <label>
+        <input type="checkbox" [(ngModel)]="getFreeGames" />
+        Include Free Games
+      </label>
+
+      <label for="ownedGamesLimit">Limit</label>
+      <input id="ownedGamesLimit" type="number" min="1" max="500" [(ngModel)]="ownedGamesLimit" />
+
+      <button type="button" (click)="callGetUserOwnedGames()">GET /getUserOwnedGames</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Ranked Games</h2>
+    <div class="row">
+      <label for="rankGamesLimit">Limit</label>
+      <input id="rankGamesLimit" type="number" min="1" max="500" [(ngModel)]="rankGamesLimit" />
+      <button type="button" (click)="callRankUserGames()">GET /rankUserGames</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Output</h2>
+    <pre>{{ output }}</pre>
+  </section>
+</main>

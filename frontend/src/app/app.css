@@ -1,0 +1,114 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #111827;
+}
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #2D3646;
+  position: relative;
+}
+
+.page-banner {
+  width: 148px;
+  height: auto;
+  border-radius: 12px;
+  display: block;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.page-banner-button {
+  position: fixed;
+  top: 14px;
+  left: 16px;
+  z-index: 3;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.page-banner-button:hover {
+  background: transparent;
+  transform: translateY(-1px);
+}
+
+.page-banner-button:active {
+  background: transparent;
+  transform: translateY(1px) scale(0.99);
+}
+
+.page-banner-button:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 3px;
+}
+
+.center-card {
+  width: min(92vw, 360px);
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: 1.6rem;
+  color: #f8fafc;
+}
+
+.brand-logo {
+  width: 88px;
+  height: 88px;
+  border-radius: 14px;
+  margin-bottom: 0.9rem;
+}
+
+p {
+  margin: 0;
+  color: #e2e8f0;
+}
+
+button {
+  border: 1px solid #1e3a8a;
+  background: #1d4ed8;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+button:hover {
+  background: #1e40af;
+}
+
+.landing-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 1rem 1rem 1rem 184px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .page-banner {
+    width: 108px;
+  }
+
+  .page-banner-button {
+    top: 10px;
+    left: 10px;
+  }
+
+  .landing-page {
+    padding-left: 126px;
+  }
+}

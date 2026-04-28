@@ -1,0 +1,18 @@
+.logout-wrap {
+  display: flex;
+  justify-content: flex-end;
+}
+
+button {
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+button:hover {
+  background: #1e293b;
+}
