@@ -78,11 +78,25 @@ jobs:
       - name: Restart backend service
         run: |
           set -euo pipefail
-          sudo systemctl restart "$SERVICE_NAME"
-          sudo systemctl is-active "$SERVICE_NAME"
+          if [ "$(id -u)" -eq 0 ]; then
+            systemctl restart "$SERVICE_NAME"
+            systemctl is-active "$SERVICE_NAME"
+          elif command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+            sudo -n systemctl restart "$SERVICE_NAME"
+            sudo -n systemctl is-active "$SERVICE_NAME"
+          else
+            echo "Runner user needs passwordless sudo for systemctl on $SERVICE_NAME."
+            exit 1
+          fi
 
       - name: Show backend logs (tail)
         if: always()
         run: |
           set -euo pipefail
-          sudo journalctl -u "$SERVICE_NAME" -n 60 --no-pager
+          if [ "$(id -u)" -eq 0 ]; then
+            journalctl -u "$SERVICE_NAME" -n 60 --no-pager
+          elif command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+            sudo -n journalctl -u "$SERVICE_NAME" -n 60 --no-pager
+          else
+            echo "Skipping journalctl: passwordless sudo is not configured for runner user."
+          fi
