@@ -21,6 +21,7 @@ jobs:
     env:
       APP_DIR: ${{ secrets.PROD_APP_DIR }}
       SERVICE_NAME: ${{ secrets.PROD_SERVICE_NAME }}
+      DOTENV_CONTENT: ${{ secrets.PROD_DOTENV }}
     steps:
       - name: Validate required variables
         run: |
@@ -33,6 +34,10 @@ jobs:
             echo "Missing environment secret PROD_SERVICE_NAME"
             exit 1
           fi
+          if [ -z "${DOTENV_CONTENT:-}" ]; then
+            echo "Missing environment secret PROD_DOTENV"
+            exit 1
+          fi
 
       - name: Ensure app directory exists
         run: |
@@ -41,6 +46,12 @@ jobs:
             echo "Expected a git clone at $APP_DIR but did not find .git"
             exit 1
           fi
+
+      - name: Render backend .env from GitHub Environment secret
+        run: |
+          set -euo pipefail
+          printf "%s" "$DOTENV_CONTENT" > "$APP_DIR/.env"
+          chmod 600 "$APP_DIR/.env"
 
       - name: Mark deploy directory as safe for git
         run: |
