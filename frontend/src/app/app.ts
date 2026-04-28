@@ -3,7 +3,20 @@ import { LogoutComponent } from './logout.component';
 import { StartModeCardsComponent } from './start-mode-cards.component';
 import { ClassicShowdownComponent } from './classic-showdown.component';
 
-const BACKEND_BASE_URL = 'http://localhost:3000';
+declare global {
+  interface Window {
+    __WDIP_CONFIG__?: {
+      backendBaseUrl?: string;
+    };
+  }
+}
+
+function resolveBackendBaseUrl(): string {
+  const configuredUrl = window.__WDIP_CONFIG__?.backendBaseUrl?.trim();
+  return configuredUrl || 'http://localhost:3000';
+}
+
+const BACKEND_BASE_URL = resolveBackendBaseUrl();
 const AUTH_SUCCESS_MESSAGE = 'steam-auth-success';
 
 @Component({

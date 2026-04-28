@@ -28,6 +28,8 @@ jobs:
           STEAM_TOKEN: ${{ vars.STEAM_TOKEN || secrets.STEAM_TOKEN }}
           STEAM_SECRET: ${{ vars.STEAM_SECRET || secrets.STEAM_SECRET }}
           FRONTEND_ALLOWED_HOSTS: ${{ vars.FRONTEND_ALLOWED_HOSTS || secrets.FRONTEND_ALLOWED_HOSTS }}
+          FRONTEND_ORIGIN: ${{ vars.FRONTEND_ORIGIN || secrets.FRONTEND_ORIGIN }}
+          BACKEND_BASE_URL: ${{ vars.BACKEND_BASE_URL || secrets.BACKEND_BASE_URL }}
         run: |
           set -euo pipefail
           if [ -z "${APP_DIR:-}" ]; then
@@ -50,10 +52,31 @@ jobs:
             echo "Missing STEAM_SECRET (vars or secrets)"
             exit 1
           fi
+          if [ -z "${FRONTEND_ORIGIN:-}" ]; then
+            echo "Missing FRONTEND_ORIGIN (vars or secrets)"
+            exit 1
+          fi
+          if [ -z "${BACKEND_BASE_URL:-}" ]; then
+            echo "Missing BACKEND_BASE_URL (vars or secrets)"
+            exit 1
+          fi
           if [ -z "${FRONTEND_ALLOWED_HOSTS:-}" ]; then
             echo "Missing FRONTEND_ALLOWED_HOSTS (vars or secrets)"
             exit 1
           fi
+
+      - name: Temporary debug URL config
+        env:
+          FRONTEND_ORIGIN: ${{ vars.FRONTEND_ORIGIN || secrets.FRONTEND_ORIGIN }}
+          BACKEND_BASE_URL: ${{ vars.BACKEND_BASE_URL || secrets.BACKEND_BASE_URL }}
+          CORS_ORIGINS: ${{ vars.CORS_ORIGINS || secrets.CORS_ORIGINS }}
+          FRONTEND_ALLOWED_HOSTS: ${{ vars.FRONTEND_ALLOWED_HOSTS || secrets.FRONTEND_ALLOWED_HOSTS }}
+        run: |
+          set -euo pipefail
+          echo "TEMP DEBUG FRONTEND_ORIGIN=$FRONTEND_ORIGIN"
+          echo "TEMP DEBUG BACKEND_BASE_URL=$BACKEND_BASE_URL"
+          echo "TEMP DEBUG CORS_ORIGINS=$CORS_ORIGINS"
+          echo "TEMP DEBUG FRONTEND_ALLOWED_HOSTS=$FRONTEND_ALLOWED_HOSTS"
 
       - name: Ensure app directory exists
         run: |
@@ -135,6 +158,17 @@ jobs:
           angularConfig.projects.frontend.architect.serve.options ||= {}
           angularConfig.projects.frontend.architect.serve.options.allowedHosts = hosts
           fs.writeFileSync(configPath, `${JSON.stringify(angularConfig, null, 2)}\n`)
+          EOF
+
+      - name: Apply frontend runtime API config
+        env:
+          BACKEND_BASE_URL: ${{ vars.BACKEND_BASE_URL || secrets.BACKEND_BASE_URL }}
+        run: |
+          set -euo pipefail
+          cat > "$APP_DIR/frontend/public/app-config.js" <<EOF
+          window.__WDIP_CONFIG__ = {
+            backendBaseUrl: '${BACKEND_BASE_URL}'
+          };
           EOF
 
       - name: Install backend dependencies
