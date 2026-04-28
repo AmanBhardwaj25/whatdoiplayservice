@@ -81,7 +81,7 @@ jobs:
           if [ "$(id -u)" -eq 0 ]; then
             systemctl restart "$SERVICE_NAME"
             systemctl is-active "$SERVICE_NAME"
-          elif command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+          elif command -v sudo >/dev/null 2>&1; then
             sudo -n systemctl restart "$SERVICE_NAME"
             sudo -n systemctl is-active "$SERVICE_NAME"
           else
@@ -95,7 +95,7 @@ jobs:
           set -euo pipefail
           if [ "$(id -u)" -eq 0 ]; then
             journalctl -u "$SERVICE_NAME" -n 60 --no-pager
-          elif command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+          elif command -v sudo >/dev/null 2>&1; then
             sudo -n journalctl -u "$SERVICE_NAME" -n 60 --no-pager
           else
             echo "Skipping journalctl: passwordless sudo is not configured for runner user."
