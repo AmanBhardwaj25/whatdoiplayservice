@@ -1,0 +1,74 @@
+name: Deploy To Proxmox LXC
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on:
+      - self-hosted
+      - proxmox
+      - prod
+    env:
+      APP_DIR: ${{ vars.PROD_APP_DIR }}
+      SERVICE_NAME: ${{ vars.PROD_SERVICE_NAME }}
+    steps:
+      - name: Validate required variables
+        run: |
+          set -euo pipefail
+          if [ -z "${APP_DIR:-}" ]; then
+            echo "Missing repo variable PROD_APP_DIR"
+            exit 1
+          fi
+          if [ -z "${SERVICE_NAME:-}" ]; then
+            echo "Missing repo variable PROD_SERVICE_NAME"
+            exit 1
+          fi
+
+      - name: Ensure app directory exists
+        run: |
+          set -euo pipefail
+          if [ ! -d "$APP_DIR/.git" ]; then
+            echo "Expected a git clone at $APP_DIR but did not find .git"
+            exit 1
+          fi
+
+      - name: Deploy latest main
+        run: |
+          set -euo pipefail
+          cd "$APP_DIR"
+          git fetch origin main
+          git reset --hard origin/main
+
+      - name: Install backend dependencies
+        run: |
+          set -euo pipefail
+          cd "$APP_DIR"
+          npm ci --omit=dev
+
+      - name: Install and build frontend
+        run: |
+          set -euo pipefail
+          cd "$APP_DIR/frontend"
+          npm ci
+          npm run build
+
+      - name: Restart backend service
+        run: |
+          set -euo pipefail
+          sudo systemctl restart "$SERVICE_NAME"
+          sudo systemctl is-active "$SERVICE_NAME"
+
+      - name: Show backend logs (tail)
+        if: always()
+        run: |
+          set -euo pipefail
+          sudo journalctl -u "$SERVICE_NAME" -n 60 --no-pager
