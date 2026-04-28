@@ -21,6 +21,7 @@ jobs:
     env:
       APP_DIR: ${{ vars.PROD_APP_DIR || secrets.PROD_APP_DIR }}
       SERVICE_NAME: ${{ vars.PROD_SERVICE_NAME || secrets.PROD_SERVICE_NAME }}
+      FRONTEND_SERVICE_NAME: ${{ vars.PROD_FRONTEND_SERVICE_NAME || secrets.PROD_FRONTEND_SERVICE_NAME }}
     steps:
       - name: Validate required variables
         env:
@@ -34,6 +35,10 @@ jobs:
           fi
           if [ -z "${SERVICE_NAME:-}" ]; then
             echo "Missing PROD_SERVICE_NAME (vars or secrets)"
+            exit 1
+          fi
+          if [ -z "${FRONTEND_SERVICE_NAME:-}" ]; then
+            echo "Missing PROD_FRONTEND_SERVICE_NAME (vars or secrets)"
             exit 1
           fi
           if [ -z "${STEAM_TOKEN:-}" ]; then
@@ -113,7 +118,7 @@ jobs:
             npm install --omit=dev
           fi
 
-      - name: Install and build frontend
+      - name: Install frontend dependencies (no build)
         run: |
           set -euo pipefail
           cd "$APP_DIR/frontend"
@@ -122,7 +127,6 @@ jobs:
           else
             npm install
           fi
-          npm run build
 
       - name: Restart backend service
         run: |
@@ -138,6 +142,20 @@ jobs:
             exit 1
           fi
 
+      - name: Restart frontend service
+        run: |
+          set -euo pipefail
+          if [ "$(id -u)" -eq 0 ]; then
+            systemctl restart "$FRONTEND_SERVICE_NAME"
+            systemctl is-active "$FRONTEND_SERVICE_NAME"
+          elif command -v sudo >/dev/null 2>&1; then
+            sudo -n systemctl restart "$FRONTEND_SERVICE_NAME"
+            sudo -n systemctl is-active "$FRONTEND_SERVICE_NAME"
+          else
+            echo "Runner user needs passwordless sudo for systemctl on $FRONTEND_SERVICE_NAME."
+            exit 1
+          fi
+
       - name: Show backend logs (tail)
         if: always()
         run: |
@@ -146,6 +164,18 @@ jobs:
             journalctl -u "$SERVICE_NAME" -n 60 --no-pager
           elif command -v sudo >/dev/null 2>&1; then
             sudo -n journalctl -u "$SERVICE_NAME" -n 60 --no-pager
+          else
+            echo "Skipping journalctl: passwordless sudo is not configured for runner user."
+          fi
+
+      - name: Show frontend logs (tail)
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ "$(id -u)" -eq 0 ]; then
+            journalctl -u "$FRONTEND_SERVICE_NAME" -n 60 --no-pager
+          elif command -v sudo >/dev/null 2>&1; then
+            sudo -n journalctl -u "$FRONTEND_SERVICE_NAME" -n 60 --no-pager
           else
             echo "Skipping journalctl: passwordless sudo is not configured for runner user."
           fi
